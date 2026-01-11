@@ -108,8 +108,8 @@ const OperationalReport = ({
           <img src={realImage} alt="Imagem Real" className="thermogram-image" />
           <div className="p-4 bg-secondary/30">
             <h4 className="text-sm font-semibold mb-2">Foto termográfica</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {readings.map((reading, index) => <div key={index} className="flex justify-between">
+            <div className="flex flex-wrap gap-4">
+              {readings.map((reading, index) => <div key={index} className="flex items-center gap-1">
                   <span className="text-sm text-muted-foreground">{reading.label}:</span>
                   <span className="font-mono text-sm font-medium">{reading.value}</span>
                 </div>)}
