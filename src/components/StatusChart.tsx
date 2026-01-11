@@ -4,14 +4,18 @@ interface StatusData {
   color: string;
 }
 
-const statusData: StatusData[] = [
+interface StatusChartProps {
+  statusData?: StatusData[];
+}
+
+const defaultStatusData: StatusData[] = [
   { label: "NORMAIS", value: 94, color: "bg-success" },
   { label: "EM MANUTENÇÃO", value: 1, color: "bg-muted-foreground" },
   { label: "DESLIGADOS", value: 1, color: "bg-border" },
   { label: "ALARME/CRÍTICO", value: 4, color: "bg-destructive" },
 ];
 
-const StatusChart = () => {
+const StatusChart = ({ statusData = defaultStatusData }: StatusChartProps) => {
   return (
     <div className="report-section">
       <h2 className="report-title">STATUS DOS EQUIPAMENTOS</h2>

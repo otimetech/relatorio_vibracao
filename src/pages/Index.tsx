@@ -1,54 +1,132 @@
+import { useParams, useSearchParams } from "react-router-dom";
 import ReportHeader from "@/components/ReportHeader";
 import StatusBadge from "@/components/StatusBadge";
 import EquipmentTable from "@/components/EquipmentTable";
 import OperationalReport from "@/components/OperationalReport";
 import TemperatureTable from "@/components/TemperatureTable";
 import StatusChart from "@/components/StatusChart";
+import { useRelatorio } from "@/hooks/useRelatorio";
+import { mapApiStatusToStatusType, Termografia } from "@/types/relatorio";
 
 import logoJundpred from "@/assets/logo-jundpred.jpg";
 import termografiaCover from "@/assets/termografia-cover.jpg";
-import termografiaRo01 from "@/assets/termografia-ro01.jpg";
-import termografiaRo01Real from "@/assets/termografia-ro01-real.jpg";
-import termografiaRo02 from "@/assets/termografia-ro02.jpg";
-import termografiaRo02Real from "@/assets/termografia-ro02-real.jpg";
-import termografiaRo03 from "@/assets/termografia-ro03.jpg";
-import termografiaRo03Real from "@/assets/termografia-ro03-real.jpg";
-import termografiaRo04 from "@/assets/termografia-ro04.jpg";
-import termografiaRo04Real from "@/assets/termografia-ro04-real.jpg";
-
-const criticalEquipment = [
-  { id: 15, name: "QD Iluminação (ao lado QL Inferior)", sector: "Logística", status: "alert" as const, observation: "VIDE R.O. 01" },
-  { id: 29, name: "QGBT 440V", sector: "Líquidos", status: "alert" as const, observation: "VIDE R.O. 02" },
-  { id: 43, name: "Extrusora AX", sector: "Laboratório", status: "critical" as const, observation: "VIDE R.O. 03" },
-  { id: 65, name: "Painel exaustor sólidos", sector: "Sólidos", status: "alert" as const, observation: "VIDE R.O. 04" },
-];
-
-const allEquipment = [
-  { id: 1, name: "Painel bomba de incêndio", sector: "Externa", status: "normal" as const, statusLabel: "ENERGIZADO - NORMAL" },
-  { id: 2, name: "Painel caixa de água", sector: "Externa", status: "normal" as const, statusLabel: "ENERGIZADO - NORMAL" },
-  { id: 3, name: "Portaria", sector: "Externa", status: "normal" as const },
-  { id: 4, name: "Poste", sector: "Externa", status: "normal" as const },
-  { id: 5, name: "Cubículo Entrada", sector: "Cabine Primária", status: "normal" as const },
-  { id: 6, name: "Cubículo Saída", sector: "Cabine Primária", status: "normal" as const },
-  { id: 7, name: "Caixa de passagem (atrás da cabine)", sector: "Cabine Primária", status: "normal" as const },
-  { id: 8, name: "Cubículo alta", sector: "Cabine secundária", status: "normal" as const },
-  { id: 9, name: "Transformador", sector: "Cabine secundária", status: "normal" as const },
-  { id: 10, name: "QL Superior", sector: "ADM", status: "normal" as const },
-  { id: 11, name: "Painel RH", sector: "ADM", status: "normal" as const },
-  { id: 12, name: "QNB 1 Servidor", sector: "ADM", status: "normal" as const },
-  { id: 13, name: "QD Disj NoBreak", sector: "ADM", status: "normal" as const },
-  { id: 14, name: "NoBreak ADM", sector: "ADM", status: "normal" as const },
-  { id: 15, name: "QD Iluminação (ao lado QL Inferior)", sector: "Logística", status: "alert" as const, statusLabel: "ALERTA (VIDE R.O. 01)" },
-  { id: 16, name: "QL Inferior", sector: "Logística", status: "normal" as const },
-  { id: 17, name: "QTN 01", sector: "Logística", status: "normal" as const },
-  { id: 18, name: "QTE 01", sector: "Logística", status: "normal" as const },
-  { id: 19, name: "HS 70", sector: "QGBT Líquidos", status: "normal" as const },
-  { id: 20, name: "MO 81", sector: "QGBT Líquidos", status: "normal" as const },
-];
 
 const Index = () => {
+  const { idRelatorio: paramId } = useParams<{ idRelatorio: string }>();
+  const [searchParams] = useSearchParams();
+  const queryId = searchParams.get("idRelatorio");
+  
+  // Suporta tanto /relatorio/:id quanto /?idRelatorio=id
+  const idRelatorio = paramId || queryId;
+  
+  const { data, isLoading, error } = useRelatorio(idRelatorio);
+  
   const handlePrint = () => {
     window.print();
+  };
+
+  if (!idRelatorio) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <h1 className="text-2xl font-bold text-primary mb-4">Relatório de Termografia</h1>
+          <p className="text-muted-foreground mb-6">
+            Informe o ID do relatório na URL para visualizar os dados.
+          </p>
+          <div className="bg-secondary/30 rounded-lg p-4 text-sm font-mono">
+            <p>/relatorio/8</p>
+            <p className="text-muted-foreground mt-2">ou</p>
+            <p>/?idRelatorio=8</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando relatório...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="text-destructive text-5xl mb-4">⚠️</div>
+          <h1 className="text-xl font-bold text-destructive mb-2">Erro ao carregar relatório</h1>
+          <p className="text-muted-foreground">{(error as Error).message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Nenhum dado encontrado.</p>
+      </div>
+    );
+  }
+
+  const { relatorio, termografias } = data;
+
+  // Filtrar termografias com problemas (alerta ou crítico)
+  const criticalEquipment = termografias
+    .filter((t) => t.status.toLowerCase() !== "normal")
+    .map((t, index) => ({
+      id: index + 1,
+      name: `${t.localizacao} - ${t.tag}`,
+      sector: t.setor,
+      status: mapApiStatusToStatusType(t.status),
+      observation: `VIDE R.O. ${String(index + 1).padStart(2, "0")}`,
+    }));
+
+  // Todos os equipamentos
+  const allEquipment = termografias.map((t, index) => ({
+    id: index + 1,
+    name: `${t.localizacao} - ${t.tag}`,
+    sector: t.setor,
+    status: mapApiStatusToStatusType(t.status),
+    statusLabel: t.status.toUpperCase(),
+  }));
+
+  // Calcular estatísticas de status
+  const statusCounts = termografias.reduce(
+    (acc, t) => {
+      const status = mapApiStatusToStatusType(t.status);
+      if (status === "normal") acc.normal++;
+      else if (status === "alert") acc.alert++;
+      else if (status === "critical") acc.critical++;
+      else if (status === "maintenance") acc.maintenance++;
+      else if (status === "off") acc.off++;
+      return acc;
+    },
+    { normal: 0, alert: 0, critical: 0, maintenance: 0, off: 0 }
+  );
+
+  const total = termografias.length || 1;
+  const statusData = [
+    { label: "NORMAIS", value: Math.round((statusCounts.normal / total) * 100), color: "bg-success" },
+    { label: "EM MANUTENÇÃO", value: Math.round((statusCounts.maintenance / total) * 100), color: "bg-muted-foreground" },
+    { label: "DESLIGADOS", value: Math.round((statusCounts.off / total) * 100), color: "bg-border" },
+    { label: "ALARME/CRÍTICO", value: Math.round(((statusCounts.alert + statusCounts.critical) / total) * 100), color: "bg-destructive" },
+  ];
+
+  // Termografias com dados para relatório operacional (que têm fotos ou descrição de problema)
+  const operationalReports = termografias.filter(
+    (t) => t.status.toLowerCase() !== "normal" && (t.foto_painel || t.foto_camera || t.descricao_problema)
+  );
+
+  // Formatar data
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("pt-BR");
   };
 
   return (
@@ -83,7 +161,8 @@ const Index = () => {
 
           <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
             <h2 className="text-2xl font-bold">RELATÓRIO DE MANUTENÇÃO PREDITIVA</h2>
-            <p className="text-lg mt-2">REF. INSPEÇÃO TERMOGRÁFICA</p>
+            <p className="text-lg mt-2">REF. INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</p>
+            <p className="text-sm mt-2 opacity-80">Nº {relatorio.n_relatorio}</p>
           </div>
 
           <div className="mb-8">
@@ -96,12 +175,12 @@ const Index = () => {
 
           <div className="grid grid-cols-2 gap-8 text-left max-w-lg mx-auto">
             <div>
-              <p className="text-muted-foreground text-sm">Local:</p>
-              <p className="font-semibold">Jundiaí - SP</p>
+              <p className="text-muted-foreground text-sm">Data da Inspeção:</p>
+              <p className="font-semibold">{formatDate(relatorio.dataExe)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-sm">Aplicação:</p>
-              <p className="font-semibold">Painéis de distribuição</p>
+              <p className="text-muted-foreground text-sm">Status:</p>
+              <p className="font-semibold">{relatorio.status}</p>
             </div>
           </div>
 
@@ -115,20 +194,20 @@ const Index = () => {
           <ReportHeader />
           
           <div className="text-right text-sm text-muted-foreground mb-8">
-            Jundiaí, 25 de julho de 2025.
+            Jundiaí, {formatDate(relatorio.dataExe)}.
           </div>
 
           <div className="mb-8">
             <p className="text-sm text-muted-foreground">A/C:</p>
-            <p className="font-semibold">Seu nome aqui</p>
-            <p className="text-muted-foreground">Departamento de Manutenção</p>
+            <p className="font-semibold">Departamento de Manutenção</p>
           </div>
 
           <div className="mb-8">
-            <h2 className="report-title">Relatório de Manutenção Preditiva por INSPEÇÃO TERMOGRÁFICA</h2>
+            <h2 className="report-title">Relatório de Manutenção Preditiva por INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</h2>
             <p className="text-foreground leading-relaxed">
-              da planta da fábrica da <strong>Sua empresa aqui</strong> (Itupeva / SP), 
-              referente à inspeção realizada no dia <strong>15 de Julho de 2025</strong> nos painéis de distribuição.
+              Referente à inspeção realizada no dia <strong>{formatDate(relatorio.dataExe)}</strong>.
+              <br />
+              Relatório Nº <strong>{relatorio.n_relatorio}</strong>.
             </p>
           </div>
 
@@ -252,14 +331,16 @@ const Index = () => {
         </div>
 
         {/* Critical Equipment List */}
-        <div className="report-page print-break">
-          <ReportHeader />
-          <EquipmentTable 
-            title="LISTAGEM DOS BARRAMENTOS EM ALARME / CRÍTICOS" 
-            equipment={criticalEquipment}
-            showObservation={true}
-          />
-        </div>
+        {criticalEquipment.length > 0 && (
+          <div className="report-page print-break">
+            <ReportHeader />
+            <EquipmentTable 
+              title="LISTAGEM DOS BARRAMENTOS EM ALARME / CRÍTICOS" 
+              equipment={criticalEquipment}
+              showObservation={true}
+            />
+          </div>
+        )}
 
         {/* Full Equipment List */}
         <div className="report-page print-break">
@@ -273,135 +354,47 @@ const Index = () => {
         {/* Status Overview */}
         <div className="report-page print-break">
           <ReportHeader />
-          <StatusChart />
+          <StatusChart statusData={statusData} />
         </div>
 
         {/* Operational Reports Header */}
-        <div className="report-page">
-          <ReportHeader />
-          <h2 className="report-title text-center text-3xl">RELATÓRIOS OPERACIONAIS</h2>
-          <p className="text-center text-muted-foreground">
-            Detalhamento das ocorrências encontradas durante a inspeção termográfica
-          </p>
-        </div>
+        {operationalReports.length > 0 && (
+          <>
+            <div className="report-page">
+              <ReportHeader />
+              <h2 className="report-title text-center text-3xl">RELATÓRIOS OPERACIONAIS</h2>
+              <p className="text-center text-muted-foreground">
+                Detalhamento das ocorrências encontradas durante a inspeção termográfica
+              </p>
+            </div>
 
-        {/* R.O. 01 */}
-        <OperationalReport
-          id="01"
-          area="Logística"
-          equipment="QD Iluminação (ao lado QL Inferior)"
-          components="Conexões"
-          date="15/07/2025"
-          status="alert"
-          emissivity="0.95"
-          maxTemp="41,6 °C"
-          maxAdmissibleTemp="70°C"
-          distance="≈1 m"
-          thermalImage={termografiaRo01}
-          realImage={termografiaRo01Real}
-          readings={[
-            { label: "Sp1", value: "35,1 °C" },
-            { label: "Sp2", value: "41,6 °C" },
-            { label: "FLIR", value: "25,2 °C" },
-          ]}
-          problem="A conexão em destaque encontra-se com diferença de temperatura entre as fases."
-          classification="INTERVENÇÃO PROGRAMADA"
-          recommendations={[
-            "Limpeza e reaperto das conexões",
-            "Verificar distribuição neste sistema",
-            "Verificar a integridade dos cabos e contatores",
-            "Caso necessário, efetuar a troca dos componentes danificados",
-            "Após intervenção realizar nova medição para verificar a eficácia do procedimento",
-          ]}
-        />
-
-        {/* R.O. 02 */}
-        <OperationalReport
-          id="02"
-          area="Líquidos"
-          equipment="QGBT 440V"
-          components="Conexões"
-          date="15/07/2025"
-          status="alert"
-          emissivity="0.95"
-          maxTemp="56,2 °C"
-          maxAdmissibleTemp="70°C"
-          distance="≈1 m"
-          thermalImage={termografiaRo02}
-          realImage={termografiaRo02Real}
-          readings={[
-            { label: "Sp1", value: "56,2 °C" },
-            { label: "Sp2", value: "47,6 °C" },
-            { label: "Sp3", value: "41,4 °C" },
-            { label: "FLIR", value: "19,0 °C" },
-          ]}
-          problem="As conexões em destaque encontram-se com diferença de temperatura entre as fases."
-          classification="INTERVENÇÃO PROGRAMADA"
-          recommendations={[
-            "Limpeza e reaperto das conexões",
-            "Verificar distribuição neste sistema",
-            "Verificar a integridade dos cabos e contatores",
-            "Caso necessário, efetuar a troca dos componentes danificados",
-            "Após intervenção realizar nova medição para verificar a eficácia do procedimento",
-          ]}
-        />
-
-        {/* R.O. 03 */}
-        <OperationalReport
-          id="03"
-          area="Laboratório"
-          equipment="Extrusora AX"
-          components="Conexões"
-          date="15/07/2025"
-          status="critical"
-          emissivity="0.95"
-          maxTemp="87,6 °C"
-          maxAdmissibleTemp="70°C"
-          distance="≈1 m"
-          thermalImage={termografiaRo03}
-          realImage={termografiaRo03Real}
-          readings={[
-            { label: "Sp1", value: "87,6 °C" },
-            { label: "Sp2", value: "63,1 °C" },
-            { label: "Sp3", value: "82,1 °C" },
-            { label: "Sp4", value: "68,4 °C" },
-            { label: "FLIR", value: "22,9 °C" },
-          ]}
-          problem="As conexões em destaque encontram-se com diferença de temperatura entre as fases."
-          classification="INTERVENÇÃO IMEDIATA"
-          recommendations={[
-            "Limpeza e reaperto das conexões",
-            "Verificar distribuição neste sistema",
-            "Verificar a integridade das chaves, fusíveis e conexões",
-            "Caso necessário, efetuar a troca dos componentes danificados",
-            "Após intervenção realizar nova medição para verificar a eficácia do procedimento",
-          ]}
-        />
-
-        {/* R.O. 04 */}
-        <OperationalReport
-          id="04"
-          area="Sólidos"
-          equipment="Painel exaustor sólidos 440V"
-          components="Fan"
-          date="15/07/2025"
-          status="alert"
-          emissivity="0.95"
-          maxTemp="76,4 °C"
-          maxAdmissibleTemp="50°C"
-          distance="≈1 m"
-          thermalImage={termografiaRo04}
-          realImage={termografiaRo04Real}
-          readings={[
-            { label: "Sp1", value: "76,4 °C" },
-            { label: "FLIR", value: "30,3 °C" },
-          ]}
-          problem="A fan da fonte chaveada se encontra travada."
-          classification="INTERVENÇÃO PROGRAMADA"
-          recommendations={[
-            "Realizar a troca da fan fonte chaveada, caso não haja a possibilidade, realizar a troca da fonte",
-          ]}
-        />
+            {/* Operational Reports */}
+            {operationalReports.map((termo, index) => (
+              <OperationalReport
+                key={termo.id}
+                id={String(index + 1).padStart(2, "0")}
+                area={termo.setor}
+                equipment={`${termo.localizacao} - ${termo.tag}`}
+                components={termo.componente || "N/A"}
+                date={formatDate(relatorio.dataExe)}
+                status={mapApiStatusToStatusType(termo.status)}
+                emissivity="0.95"
+                maxTemp={termo.temp_aquecimento ? `${termo.temp_aquecimento} °C` : "N/A"}
+                maxAdmissibleTemp={termo.temp_admissivel ? `${termo.temp_admissivel}°C` : "N/A"}
+                distance="≈1 m"
+                thermalImage={termo.foto_painel || ""}
+                realImage={termo.foto_camera || ""}
+                readings={termo.temp_aquecimento ? [
+                  { label: "Temp. Medida", value: `${termo.temp_aquecimento} °C` },
+                  { label: "Temp. Admissível", value: `${termo.temp_admissivel} °C` },
+                ] : []}
+                problem={termo.descricao_problema || termo.observacao || "Verificar equipamento"}
+                classification={termo.status.toLowerCase() === "crítico" ? "INTERVENÇÃO IMEDIATA" : "INTERVENÇÃO PROGRAMADA"}
+                recommendations={termo.recomendacao ? [termo.recomendacao] : ["Realizar manutenção preventiva"]}
+              />
+            ))}
+          </>
+        )}
 
         {/* Final Considerations */}
         <div className="report-page print-break">
