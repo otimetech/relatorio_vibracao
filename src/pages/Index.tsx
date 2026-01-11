@@ -157,7 +157,7 @@ const Index = () => {
         <div className="report-page print-break text-center">
           <div className="flex justify-between items-start mb-8">
             <img src={logoJundpred} alt="JundPred - Manutenção Preditiva" className="h-20" />
-            {clienteData?.logo && <img src={clienteData.logo.split('?')[0]} alt={clienteData.nome} className="h-20 object-contain" />}
+            {clienteData?.logo}
           </div>
 
           <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
