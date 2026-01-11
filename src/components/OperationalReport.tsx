@@ -97,21 +97,21 @@ const OperationalReport = ({
       </div>
 
       {/* Images */}
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="thermogram-card">
-          <img src={thermalImage} alt="Imagem Termográfica" className="thermogram-image" />
-          <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold">Foto painel</h4>
+          <img src={thermalImage} alt="Imagem Termográfica" className="thermogram-image max-h-[120px] w-full object-cover" />
+          <div className="p-2 bg-secondary/30">
+            <h4 className="text-xs font-semibold">Foto painel</h4>
           </div>
         </div>
         <div className="thermogram-card">
-          <img src={realImage} alt="Imagem Real" className="thermogram-image" />
-          <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold mb-2">Foto termográfica</h4>
-            <div className="flex flex-wrap gap-4">
+          <img src={realImage} alt="Imagem Real" className="thermogram-image max-h-[120px] w-full object-cover" />
+          <div className="p-2 bg-secondary/30">
+            <h4 className="text-xs font-semibold mb-1">Foto termográfica</h4>
+            <div className="flex flex-wrap gap-3">
               {readings.map((reading, index) => <div key={index} className="flex items-center gap-1">
-                  <span className="text-sm text-muted-foreground">{reading.label}:</span>
-                  <span className="font-mono text-sm font-medium">{reading.value}</span>
+                  <span className="text-xs text-muted-foreground">{reading.label}:</span>
+                  <span className="font-mono text-xs font-medium">{reading.value}</span>
                 </div>)}
             </div>
           </div>
