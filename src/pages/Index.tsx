@@ -225,6 +225,7 @@ const Index = () => {
               <p className="text-muted-foreground text-sm">Diretor Comercial</p>
               <p className="text-sm mt-2">luis@jundpred.com.br</p>
               <p className="text-sm">Tel.: (11) 2817-0616</p>
+              <p className="text-sm">Cel: (11) 98112-2244</p>
             </div>
           </div>
         </div>
