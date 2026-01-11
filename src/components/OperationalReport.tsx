@@ -1,6 +1,5 @@
 import StatusBadge from "./StatusBadge";
 import { StatusType } from "@/types/relatorio";
-
 interface OperationalReportProps {
   id: string;
   area: string;
@@ -14,12 +13,14 @@ interface OperationalReportProps {
   distance: string;
   thermalImage: string;
   realImage: string;
-  readings: { label: string; value: string }[];
+  readings: {
+    label: string;
+    value: string;
+  }[];
   problem: string;
   classification: string;
   recommendations: string[];
 }
-
 const OperationalReport = ({
   id,
   area,
@@ -36,19 +37,16 @@ const OperationalReport = ({
   readings,
   problem,
   classification,
-  recommendations,
+  recommendations
 }: OperationalReportProps) => {
   const getTempClass = (temp: string, maxAdmissible: string) => {
     const tempNum = parseFloat(temp.replace(/[^0-9.,]/g, "").replace(",", "."));
     const maxNum = parseFloat(maxAdmissible.replace(/[^0-9.,]/g, "").replace(",", "."));
-    
     if (tempNum >= maxNum) return "temperature-high";
     if (tempNum >= maxNum * 0.8) return "temperature-medium";
     return "temperature-normal";
   };
-
-  return (
-    <div className="report-page print-break">
+  return <div className="report-page print-break">
       <div className="flex items-center justify-between mb-6">
         <h2 className="report-title">RELATÓRIO OPERACIONAL – {id}</h2>
         <StatusBadge status={status} />
@@ -101,31 +99,21 @@ const OperationalReport = ({
       {/* Images */}
       <div className="grid md:grid-cols-2 gap-6 mb-6">
         <div className="thermogram-card">
-          <img 
-            src={thermalImage} 
-            alt="Imagem Termográfica" 
-            className="thermogram-image"
-          />
+          <img src={thermalImage} alt="Imagem Termográfica" className="thermogram-image" />
           <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold mb-2">Leituras</h4>
+            <h4 className="text-sm font-semibold mb-2">Foto painel</h4>
             <div className="grid grid-cols-2 gap-2">
-              {readings.map((reading, index) => (
-                <div key={index} className="flex justify-between">
+              {readings.map((reading, index) => <div key={index} className="flex justify-between">
                   <span className="text-sm text-muted-foreground">{reading.label}:</span>
                   <span className="font-mono text-sm font-medium">{reading.value}</span>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
         <div className="thermogram-card">
-          <img 
-            src={realImage} 
-            alt="Imagem Real" 
-            className="thermogram-image"
-          />
+          <img src={realImage} alt="Imagem Real" className="thermogram-image" />
           <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold">Imagem Real do Equipamento</h4>
+            <h4 className="text-sm font-semibold">Foto termográfica</h4>
           </div>
         </div>
       </div>
@@ -144,9 +132,7 @@ const OperationalReport = ({
       <div className="report-section">
         <h3 className="report-subtitle">RECOMENDAÇÕES:</h3>
         <ul className="recommendation-list">
-          {recommendations.map((rec, index) => (
-            <li key={index}>{rec}</li>
-          ))}
+          {recommendations.map((rec, index) => <li key={index}>{rec}</li>)}
         </ul>
       </div>
 
@@ -162,8 +148,6 @@ const OperationalReport = ({
           <span className="text-sm text-muted-foreground">Data: ___/___/___</span>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default OperationalReport;
