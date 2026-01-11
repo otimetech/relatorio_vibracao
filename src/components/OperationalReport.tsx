@@ -1,4 +1,5 @@
 import StatusBadge from "./StatusBadge";
+import { StatusType } from "@/types/relatorio";
 
 interface OperationalReportProps {
   id: string;
@@ -6,7 +7,7 @@ interface OperationalReportProps {
   equipment: string;
   components: string;
   date: string;
-  status: "normal" | "alert" | "critical";
+  status: StatusType;
   emissivity: string;
   maxTemp: string;
   maxAdmissibleTemp: string;
