@@ -101,19 +101,19 @@ const OperationalReport = ({
         <div className="thermogram-card">
           <img src={thermalImage} alt="Imagem Termográfica" className="thermogram-image" />
           <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold mb-2">Foto painel</h4>
+            <h4 className="text-sm font-semibold">Foto painel</h4>
+          </div>
+        </div>
+        <div className="thermogram-card">
+          <img src={realImage} alt="Imagem Real" className="thermogram-image" />
+          <div className="p-4 bg-secondary/30">
+            <h4 className="text-sm font-semibold mb-2">Foto termográfica</h4>
             <div className="grid grid-cols-2 gap-2">
               {readings.map((reading, index) => <div key={index} className="flex justify-between">
                   <span className="text-sm text-muted-foreground">{reading.label}:</span>
                   <span className="font-mono text-sm font-medium">{reading.value}</span>
                 </div>)}
             </div>
-          </div>
-        </div>
-        <div className="thermogram-card">
-          <img src={realImage} alt="Imagem Real" className="thermogram-image" />
-          <div className="p-4 bg-secondary/30">
-            <h4 className="text-sm font-semibold">Foto termográfica</h4>
           </div>
         </div>
       </div>
