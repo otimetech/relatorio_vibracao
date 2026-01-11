@@ -212,8 +212,7 @@ const Index = () => {
 
           <div className="mb-8">
             <h2 className="report-title">Relatório de Manutenção Preditiva: INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</h2>
-            <p className="text-foreground leading-relaxed">Referente à inspeção realizada nos paineis de distribuição no dia 03/01/2026.
-Relatório Nº 123.<strong>{formatDate(relatorio.dataExe)}</strong>.
+            <p className="text-foreground leading-relaxed">Referente à inspeção realizada nos paineis de distribuição na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
               <br />
               Relatório Nº <strong>{relatorio.n_relatorio}</strong>.
             </p>
