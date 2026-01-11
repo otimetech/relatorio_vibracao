@@ -222,12 +222,10 @@ Relatório Nº 123.<strong>{formatDate(relatorio.dataExe)}</strong>.
           <div className="mb-8">
             <p className="mb-4">Atenciosamente,</p>
             <div className="border-l-4 border-primary pl-4">
-              <p className="font-semibold">{usuarioData?.nome || "Luís Henrique Guimarães Stefani"}</p>
-              <p className="text-muted-foreground text-sm">{usuarioData?.funcao || "Diretor Comercial"}</p>
-              {usuarioData?.departamento && <p className="text-muted-foreground text-sm">{usuarioData.departamento}</p>}
-              <p className="text-sm mt-2">{usuarioData?.email || "luis@jundpred.com.br"}</p>
-              {usuarioData?.telefone && <p className="text-sm">Tel.: {usuarioData.telefone}</p>}
-              {usuarioData?.foto_assinatura && <img src={usuarioData.foto_assinatura} alt="Assinatura" className="signature-image h-16 mt-4" />}
+              <p className="font-semibold">Luís Henrique Guimarães Stefani</p>
+              <p className="text-muted-foreground text-sm">Diretor Comercial</p>
+              <p className="text-sm mt-2">luis@jundpred.com.br</p>
+              <p className="text-sm">Tel.: (11) 2817-0616</p>
             </div>
           </div>
         </div>
