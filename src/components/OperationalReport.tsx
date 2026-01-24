@@ -99,13 +99,25 @@ const OperationalReport = ({
       {/* Images */}
       <div className="grid grid-cols-2 gap-4 mb-2 print:gap-2 print:mb-1 print:break-inside-avoid items-center">
         <div className="thermogram-card flex flex-col items-center">
-          <img src={thermalImage} alt="Imagem Termográfica" className="report-image h-[150px] object-contain mx-auto" />
+          {thermalImage ? (
+            <img src={thermalImage} alt="Imagem Termográfica" className="report-image h-[150px] object-contain mx-auto" />
+          ) : (
+            <div className="image-placeholder h-[150px] w-full">
+              <span className="text-xs text-muted-foreground">Sem imagem</span>
+            </div>
+          )}
           <div className="p-2 print:p-1 bg-secondary/30 w-full text-center">
             <h4 className="text-xs font-semibold print:text-[10px]">Foto painel</h4>
           </div>
         </div>
         <div className="thermogram-card flex flex-col items-center">
-          <img src={realImage} alt="Imagem Real" className="report-image h-[150px] object-contain mx-auto" />
+          {realImage ? (
+            <img src={realImage} alt="Imagem Real" className="report-image h-[150px] object-contain mx-auto" />
+          ) : (
+            <div className="image-placeholder h-[150px] w-full">
+              <span className="text-xs text-muted-foreground">Sem imagem</span>
+            </div>
+          )}
           <div className="p-2 print:p-1 bg-secondary/30 w-full text-center">
             <h4 className="text-xs font-semibold mb-1 print:text-[10px] print:mb-0">Foto termográfica</h4>
             <div className="flex flex-wrap gap-3 print:gap-1 justify-center">

@@ -10,10 +10,8 @@ import { mapApiStatusToStatusType, Termografia } from "@/types/relatorio";
 import logoJundpred from "@/assets/logo-jundpred.jpg";
 import termografiaCover from "@/assets/termografia-cover.jpg";
 const Index = () => {
-  const {
-    idRelatorio: paramId
-  } = useParams<{
-    idRelatorio: string;
+  const { idRelatorio: paramId } = useParams<{
+    idRelatorio?: string;
   }>();
   const [searchParams] = useSearchParams();
   const queryId = searchParams.get("idRelatorio");
@@ -130,8 +128,8 @@ const Index = () => {
     color: "bg-destructive"
   }];
 
-  // Termografias com dados para relatório operacional (que têm fotos ou descrição de problema)
-  const operationalReports = termografias.filter(t => t.status.toLowerCase() !== "normal" && (t.foto_painel || t.foto_camera || t.descricao_problema));
+  // Termografias com dados para relatório operacional (que têm status anormal)
+  const operationalReports = termografias.filter(t => t.status.toLowerCase() !== "normal");
 
   // Formatar data
   const formatDate = (dateStr: string) => {
