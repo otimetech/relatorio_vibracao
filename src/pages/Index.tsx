@@ -8,8 +8,7 @@ import TemperatureTable from "@/components/TemperatureTable";
 import StatusChart from "@/components/StatusChart";
 import { useRelatorio } from "@/hooks/useRelatorio";
 import { mapApiStatusToStatusType, Termografia } from "@/types/relatorio";
-import logoJundpred from "@/assets/logo-jundpred.jpg";
-import termografiaCover from "@/assets/termografia-cover.jpg";
+
 const Index = () => {
   const { idRelatorio: paramId } = useParams<{
     idRelatorio?: string;
@@ -165,7 +164,7 @@ const Index = () => {
         <div className="report-page print-break flex flex-col text-center">
           <div className="flex-1">
             <div className="flex justify-between items-start mb-4">
-              <img src={logoJundpred} alt="JundPred - Manutenção Preditiva" className="cover-logo h-8 w-auto" />
+              <img src="/logo-jundpred.jpg" alt="JundPred - Manutenção Preditiva" className="cover-logo h-8 w-auto" />
               <img src="/logo-brasil.jpg" alt="Logo Brasil" className="cover-logo h-8 w-auto" />
             </div>
 
@@ -176,7 +175,7 @@ const Index = () => {
             </div>
 
             <div className="mb-8 flex justify-center items-center">
-              <img src={termografiaCover} alt="Imagem Termográfica" className="cover-image rounded-lg shadow-lg" style={{ width: "320px", height: "240px", objectFit: "cover" }} />
+              <img src="/termografia-cover.jpg" alt="Imagem Termográfica" className="cover-image rounded-lg shadow-lg" style={{ width: "320px", height: "240px", objectFit: "cover" }} />
             </div>
 
             {clienteData?.logo && <div className="mb-8">

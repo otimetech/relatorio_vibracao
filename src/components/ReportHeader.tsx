@@ -1,10 +1,8 @@
-import logoJundpred from "@/assets/logo-jundpred.jpg";
-
 const ReportHeader = () => {
   return (
     <header className="report-header flex flex-row items-center justify-between gap-0 print:gap-0">
       <img 
-        src={logoJundpred} 
+        src="/logo-jundpred.jpg" 
         alt="JundPred - Manutenção Preditiva"
         className="header-logo h-8 w-auto"
       />
