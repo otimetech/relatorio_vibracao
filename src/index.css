@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
 
 /* Design System for JundPred Thermography Report */
 
@@ -32,8 +32,8 @@
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 46 100% 45%;
+    --warning-foreground: 46 0% 100%;
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
@@ -117,7 +117,7 @@
   }
 
   .report-header {
-    @apply border-b border-border pb-6 mb-6;
+    @apply border-b border-border pb-3 mb-3;
   }
 
   .report-section {
@@ -143,15 +143,18 @@
   }
 
   .status-alert {
-    background-color: hsl(var(--warning) / 0.1);
-    color: hsl(var(--warning));
-    border: 1px solid hsl(var(--warning) / 0.2);
+    background-color: #FFFF66;
+    color: #CC9B00;
+    border: 1px solid #CC9B00;
   }
 
   .status-critical {
     background-color: hsl(var(--destructive) / 0.1);
     color: hsl(var(--destructive));
     border: 1px solid hsl(var(--destructive) / 0.2);
+    background-color: #FFC7CE;
+    color: #9C0006;
+    border: 1px solid #FFC7CE6;
   }
 
   .status-maintenance {
@@ -163,15 +166,87 @@
   }
 
   .data-table th {
-    @apply bg-primary text-primary-foreground text-left px-4 py-3 text-sm font-semibold;
+    background-color: #186839;
+    color: #ffffff;
+    @apply text-left px-4 py-0 text-sm font-semibold;
   }
 
   .data-table td {
-    @apply px-4 py-3 text-sm border-b border-border;
+    @apply px-4 py-0 text-sm border-b border-border;
   }
 
   .data-table tr:hover td {
     @apply bg-muted/50;
+  }
+
+  /* Equipment Table - altura personalizada */
+  .equipment-table {
+    @apply w-full border-collapse;
+  }
+
+  .equipment-table th {
+    @apply bg-primary text-primary-foreground text-left px-4 py-2 text-sm font-semibold;
+  }
+
+  .equipment-table td {
+    @apply px-4 py-2 text-sm border-b border-border;
+  }
+
+  .equipment-table tr:hover td {
+    @apply bg-muted/50;
+  }
+
+  /* Operational Report Table - com cor amarela */
+  .operational-report-table {
+    @apply w-full border-collapse;
+  }
+
+  .operational-report-table th {
+    background-color: #FFFF66;
+    color: #000000;
+    @apply text-left px-4 py-2 text-sm font-semibold;
+  }
+
+  .operational-report-table td {
+    @apply px-4 py-2 text-sm border-b border-border;
+  }
+
+  .operational-report-table tr:hover td {
+    @apply bg-muted/50;
+  }
+
+  /* Operational Report Table - com cor vermelha para crítico */
+  .operational-report-table-critical {
+    @apply w-full border-collapse;
+  }
+
+  .operational-report-table-critical th {
+    background-color: #960000;
+    color: #ffffff;
+    @apply text-left px-4 py-2 text-sm font-semibold;
+  }
+
+  .operational-report-table-critical td {
+    @apply px-4 py-2 text-sm border-b border-border;
+  }
+
+  .operational-report-table-critical tr:hover td {
+    @apply bg-muted/50;
+  }
+
+  /* Classification Badge - dinamicamente baseado no status */
+  .classification-badge {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg;
+  }
+
+  .classification-badge-alert {
+    background-color: #FFFFBD;
+    color: #E6AF00;
+  }
+
+  .classification-badge-critical {
+    background-color: #FFCDCD;
+    color: #960000;
   }
 
   .thermogram-card {
@@ -195,7 +270,7 @@
   }
 
   .temperature-medium {
-    @apply text-warning;
+    color: hsl(46, 100%, 45%);
   }
 
   .temperature-normal {
@@ -357,7 +432,7 @@
   }
 
   .bg-warning {
-    background-color: hsl(38 92% 50%) !important;
+    background-color: #FFFF66 !important;
   }
 
   .bg-destructive {

@@ -20,7 +20,7 @@ const EquipmentTable = ({ title, equipment, showObservation = false }: Equipment
     <div className="report-section">
       <h2 className="report-title">{title}</h2>
       <div className="overflow-x-auto">
-        <table className="data-table">
+        <table className="equipment-table">
           <thead>
             <tr>
               <th className="w-16">Qtd.</th>

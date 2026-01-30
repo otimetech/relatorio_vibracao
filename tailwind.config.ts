@@ -36,7 +36,7 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         warning: {
-          DEFAULT: "hsl(var(--warning))",
+          DEFAULT: "#FFFF66",
           foreground: "hsl(var(--warning-foreground))",
         },
         success: {

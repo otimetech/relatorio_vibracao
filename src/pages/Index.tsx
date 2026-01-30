@@ -1,5 +1,6 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import ReportHeader from "@/components/ReportHeader";
+import ReportFooter from "@/components/ReportFooter";
 import StatusBadge from "@/components/StatusBadge";
 import EquipmentTable from "@/components/EquipmentTable";
 import OperationalReport from "@/components/OperationalReport";
@@ -67,6 +68,7 @@ const Index = () => {
     relatorio,
     cliente,
     usuario,
+    aprovador,
     termografias
   } = data;
 
@@ -74,6 +76,8 @@ const Index = () => {
   const clienteData = cliente || relatorio.cliente;
   // Usar usuario do response ou do relatorio
   const usuarioData = usuario || relatorio.usuario;
+  // Usar aprovador do response ou do relatorio
+  const aprovadorData = aprovador || relatorio.aprovador;
 
   // Filtrar termografias com problemas (alerta ou crítico)
   const criticalEquipment = termografias.filter(t => t.status.toLowerCase() !== "normal").map((t, index) => ({
@@ -136,6 +140,12 @@ const Index = () => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("pt-BR");
   };
+
+  // Formatar data como mês/ano
+  const formatMonthYear = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }).replace(/de /g, "");
+  };
   return <div className="min-h-screen bg-background py-8 px-4 print:p-0 print:bg-white">
       {/* Print Button */}
       <div className="no-print fixed top-4 right-4 z-50">
@@ -152,45 +162,48 @@ const Index = () => {
       <div className="a4-container">
         
         {/* Cover Page */}
-        <div className="report-page print-break text-center">
-          <div className="flex justify-start items-start mb-8">
-            <img src={logoJundpred} alt="JundPred - Manutenção Preditiva" className="cover-logo h-20 w-auto" />
-          </div>
+        <div className="report-page print-break flex flex-col text-center">
+          <div className="flex-1">
+            <div className="flex justify-between items-start mb-4">
+              <img src={logoJundpred} alt="JundPred - Manutenção Preditiva" className="cover-logo h-8 w-auto" />
+              <img src="/logo-brasil.jpg" alt="Logo Brasil" className="cover-logo h-8 w-auto" />
+            </div>
 
-          <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
-            <h2 className="text-2xl font-bold">RELATÓRIO DE MANUTENÇÃO PREDITIVA</h2>
-            <p className="text-lg mt-2">REF. INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</p>
-            <p className="text-sm mt-2 opacity-80">Nº {relatorio.n_relatorio}</p>
-          </div>
+            <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
+              <h2 className="text-2xl font-bold">RELATÓRIO DE MANUTENÇÃO PREDITIVA</h2>
+              <p className="text-lg mt-2">REF. INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</p>
+              <p className="text-sm mt-2 opacity-80">Nº {relatorio.n_relatorio}</p>
+            </div>
 
-          <div className="mb-8">
-            <img src={termografiaCover} alt="Imagem Termográfica" className="cover-image max-w-md mx-auto rounded-lg shadow-lg" />
-          </div>
+            <div className="mb-8 flex justify-center items-center">
+              <img src={termografiaCover} alt="Imagem Termográfica" className="cover-image rounded-lg shadow-lg" style={{ width: "320px", height: "240px", objectFit: "cover" }} />
+            </div>
 
-          {clienteData && <div className="bg-secondary/30 rounded-lg p-4 mb-6 text-left">
-              <h3 className="font-semibold text-primary mb-2">Cliente</h3>
-              <p className="font-bold text-lg">{clienteData.nome}</p>
-              <p className="text-sm text-muted-foreground">CNPJ: {clienteData.cnpj}</p>
+            {clienteData?.logo && <div className="mb-8">
+              <img src={clienteData.logo} alt={clienteData.nome} className="cover-logo h-20 w-auto mx-auto" />
             </div>}
 
-          <div className="grid grid-cols-2 gap-8 text-left max-w-lg mx-auto">
-            <div>
-              <p className="text-muted-foreground text-sm">Data da Inspeção:</p>
-              <p className="font-semibold">{formatDate(relatorio.dataExe)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-sm">Status:</p>
-              <p className="font-semibold">{relatorio.status}</p>
+            {clienteData && <div className="bg-secondary/30 rounded-lg p-4 mb-6 text-center">
+                <h3 className="font-semibold text-primary mb-2">Cliente / Unidade</h3>
+                <p className="font-bold text-lg">{clienteData.nome} - {clienteData.cidade}/{clienteData.estado}</p>
+                
+              </div>}
+
+            <div className="grid grid-cols-1 gap-8 text-center max-w-lg mx-auto">
+              <div>
+                <p className="text-muted-foreground text-sm">Mês de Referência</p>
+                <p className="font-semibold">{formatMonthYear(relatorio.dataExe)}</p>
+              </div>
+              
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border">
-            <p className="text-sm text-muted-foreground">www.jundpred.com.br</p>
-          </div>
+          <ReportFooter />
         </div>
 
         {/* Letter Page */}
-        <div className="report-page print-break">
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
           <ReportHeader />
           
           <div className="text-right text-sm text-muted-foreground mb-8">
@@ -209,8 +222,8 @@ const Index = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="report-title">Relatório de Manutenção Preditiva: INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</h2>
-            <p className="text-foreground leading-relaxed">Referente à inspeção realizada nos paineis de distribuição na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
+            
+            <p className="text-foreground leading-relaxed">Referente à inspeção realizada nos equipamentos na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
               <br />
               Relatório Nº <strong>{relatorio.n_relatorio}</strong>.
             </p>
@@ -226,10 +239,13 @@ const Index = () => {
               <p className="text-sm">Cel: (11) 98112-2244</p>
             </div>
           </div>
+          </div>
+          <ReportFooter />
         </div>
 
         {/* Technical Info Page */}
-        <div className="report-page print-break">
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
           <ReportHeader />
           
           <h2 className="report-title">RELATÓRIO DE INSPEÇÃO TERMOGRÁFICA</h2>
@@ -282,79 +298,44 @@ const Index = () => {
               </div>
             </div>
           </div>
+          </div>
+          <ReportFooter />
         </div>
 
         {/* Temperature Table Page */}
-        <div className="report-page print-break">
-          <ReportHeader />
-          <TemperatureTable />
-        </div>
-
-        {/* Methodology Page */}
-        <div className="report-page print-break">
-          <ReportHeader />
-
-          <div className="space-y-6 text-sm">
-            <div>
-              <p className="font-medium text-primary">3.5</p>
-              <p className="text-foreground">
-                As falhas elétricas detectadas são classificadas segundo critérios de prioridades de 
-                manutenção, calculando-se a temperatura que o componente teria em condição padrão de funcionamento.
-              </p>
-            </div>
-            <div>
-              <p className="font-medium text-primary">3.6</p>
-              <p className="text-foreground">
-                Entende-se por manutenção não apenas a troca do componente, como também a limpeza e/ou reaperto. 
-                A observação de um componente envolve a verificação periódica da evolução térmica.
-              </p>
-            </div>
-            <div>
-              <p className="font-medium text-primary">3.7</p>
-              <p className="text-foreground">
-                Por uma questão de aproveitamento de tempo de inspeção, a execução de termogramas e imagens 
-                térmicas que ilustram o relatório é reservada apenas aos equipamentos anormalmente aquecidos 
-                de maior importância ou a critério do contratante.
-              </p>
-            </div>
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
+            <ReportHeader />
+            <TemperatureTable />
           </div>
-
-          <div className="report-section mt-8">
-            <h3 className="report-subtitle">4 - CONCLUSÃO</h3>
-            <div className="space-y-4 text-sm">
-              <div>
-                <p className="font-medium text-primary">4.1</p>
-                <p className="text-foreground">
-                  Recomendamos que sejam realizadas as manutenções nos equipamentos com temperaturas anormais 
-                  listados neste relatório.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-primary">4.2</p>
-                <p className="text-foreground">
-                  Colocamo-nos à disposição para esclarecer quaisquer dúvidas a respeito de nossos serviços.
-                </p>
-              </div>
-            </div>
-          </div>
+          <ReportFooter />
         </div>
 
         {/* Critical Equipment List */}
-        {criticalEquipment.length > 0 && <div className="report-page print-break">
-            <ReportHeader />
-            <EquipmentTable title="LISTAGEM DOS BARRAMENTOS EM ALARME / CRÍTICOS" equipment={criticalEquipment} showObservation={true} />
+        {criticalEquipment.length > 0 && <div className="report-page print-break flex flex-col">
+            <div className="flex-1">
+              <ReportHeader />
+              <EquipmentTable title="RESUMO DOS EQUIPAMENTOS EM ALARME / CRÍTICOS" equipment={criticalEquipment} showObservation={true} />
+            </div>
+            <ReportFooter />
           </div>}
 
         {/* Full Equipment List */}
-        <div className="report-page print-break">
-          <ReportHeader />
-          <EquipmentTable title="LISTAGEM DOS PAINÉIS E EQUIPAMENTOS" equipment={allEquipment} />
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
+            <ReportHeader />
+            <EquipmentTable title="LISTAGEM GERAL DOS EQUIPAMENTOS" equipment={allEquipment} />
+          </div>
+          <ReportFooter />
         </div>
 
         {/* Status Overview */}
-        <div className="report-page print-break">
-          <ReportHeader />
-          <StatusChart statusData={statusData} />
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
+            <ReportHeader />
+            <StatusChart statusData={statusData} />
+          </div>
+          <ReportFooter />
         </div>
 
         {/* Operational Reports Header */}
@@ -380,8 +361,9 @@ const Index = () => {
           </>}
 
         {/* Final Considerations */}
-        <div className="report-page print-break">
-          <ReportHeader />
+        <div className="report-page print-break flex flex-col">
+          <div className="flex-1">
+            <ReportHeader />
           
           <h2 className="report-title">CONSIDERAÇÕES FINAIS</h2>
           
@@ -406,55 +388,76 @@ const Index = () => {
               <p className="text-sm">{usuarioData?.telefone || 'Tel.: (11) 2817-0616'}</p>
             </div>
           </div>
+
+          {aprovadorData && (
+            <div className="mb-8">
+              <p className="mb-4">Aprovado por,</p>
+              <div className="border-l-4 border-primary pl-4">
+                <p className="font-semibold">{aprovadorData.nome}</p>
+                <p className="text-muted-foreground text-sm">{aprovadorData.departamento}</p>
+                <p className="text-sm mt-2">{aprovadorData.email}</p>
+                <p className="text-sm">{aprovadorData.telefone}</p>
+              </div>
+            </div>
+          )}
+          </div>
+          <ReportFooter />
         </div>
 
         {/* Services Page */}
-        <div className="report-page">
-          <ReportHeader />
-          
-          <h2 className="report-title">OUTROS SERVIÇOS</h2>
-          
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            {[{
-            title: "Análise de Vibrações",
-            desc: "Off-line e on-line, solo e estrutural"
-          }, {
-            title: "Inspeção Termográfica",
-            desc: "Painéis, cabines, fornos, mancais, etc."
-          }, {
-            title: "Alinhamento a Laser",
-            desc: "De eixos e polias + calços calibrados"
-          }, {
-            title: "Balanceamento Dinâmico",
-            desc: "Realizado no local – 1 a 4 planos"
-          }, {
-            title: "Ultrassom – Caça Vazamentos",
-            desc: "Ar comprimido, vapor, gases e elétrica"
-          }, {
-            title: "MCA – Inspeção Elétrica",
-            desc: "Avaliação de circuitos em motores elétricos"
-          }, {
-            title: "Análise de Óleo",
-            desc: "Lubrificante / pacote industrial"
-          }, {
-            title: "PLANOS DE MANUTENÇÃO",
-            desc: "Consultoria e criação de plano personalizado"
-          }, {
-            title: "TREINAMENTOS DE PREDITIVA",
-            desc: "Análise de vibração e Termografia – N1"
-          }].map((service, index) => <div key={index} className="info-card hover:shadow-md transition-shadow">
-                <h4 className="font-semibold text-primary">{service.title}</h4>
-                <p className="text-sm text-muted-foreground">{service.desc}</p>
-              </div>)}
-          </div>
-
-          <div className="text-center mt-8 pt-6 border-t border-border">
-            <p className="text-lg font-semibold text-primary">www.jundpred.com.br</p>
-            <p className="text-muted-foreground">Tel.: (11) 2817-0616</p>
+        <div className="report-page flex flex-col">
+          <div className="flex-1">
+            <ReportHeader />
+            
+            <h2 className="report-title">NOSSOS SERVIÇOS</h2>
+            
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {[{
+              title: "Análise de Vibrações",
+              desc: "Off-line e on-line, solo e estrutural"
+            }, {
+              title: "Inspeção Termográfica",
+              desc: "Painéis, cabines, fornos, mancais, etc."
+            }, {
+              title: "Alinhamento a Laser",
+              desc: "De eixos e polias + calços calibrados"
+            }, {
+              title: "Balanceamento Dinâmico",
+              desc: "Realizado no local – 1 a 4 planos"
+            }, {
+              title: "ODS (Estrutural)",
+              desc: "Análise de torção de base com correção"
+            }, {
+              title: "MCA – Inspeção Elétrica",
+              desc: "Avaliação de circuitos em motores elétricos"
+            }, {
+              title: "Análise de Óleo",
+              desc: "Lubrificante / pacote industrial"
+            }, {
+              title: "Técnicas Multiparâmetro",
+              desc: "Aplicação de diversas técnicas preditivas"
+            }, {
+              title: "Treinamentos de Preditiva",
+              desc: "Análise de vibração e Termografia – N1"
+            }, {
+              title: "Monitoramento Online",
+              desc: "Sensor online de vibração"
+            }, {
+              title: "Inspeção Ultrassônica",
+              desc: "Ar comprimido, vapor, gases e elétrica"
+            }, {
+              title: "Inspeção Sensitiva",
+              desc: "Abordagem para identificar falhas incipientes"
+            }].map((service, index) => <div key={index} className="info-card hover:shadow-md transition-shadow">
+                  <h4 className="font-semibold text-primary">{service.title}</h4>
+                  <p className="text-sm text-muted-foreground">{service.desc}</p>
+                </div>)}
+            </div>
+            <ReportFooter />
           </div>
         </div>
 
       </div>
-    </div>;
+    </div>
 };
 export default Index;

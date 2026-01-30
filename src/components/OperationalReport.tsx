@@ -1,4 +1,5 @@
 import StatusBadge from "./StatusBadge";
+import ReportHeader from "./ReportHeader";
 import { StatusType } from "@/types/relatorio";
 interface OperationalReportProps {
   id: string;
@@ -46,15 +47,25 @@ const OperationalReport = ({
     if (tempNum >= maxNum * 0.8) return "temperature-medium";
     return "temperature-normal";
   };
+
+  const getTableClass = () => {
+    return status === "critical" ? "operational-report-table-critical" : "operational-report-table";
+  };
+
+  const getClassificationBadgeClass = () => {
+    return status === "critical" ? "classification-badge-critical" : "classification-badge-alert";
+  };
+
   return <div className="report-page print-break">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="report-title">RELATÓRIO OPERACIONAL – {id}</h2>
+      <ReportHeader />
+      <div className="flex items-center justify-between mb-4 pt-4 border-b border-border">
+        <h2 className="report-title text-lg">RELATÓRIO OPERACIONAL – {id}</h2>
         <StatusBadge status={status} />
       </div>
 
       {/* Info Table */}
       <div className="overflow-x-auto mb-6">
-        <table className="data-table">
+        <table className={getTableClass()}>
           <thead>
             <tr>
               <th>Área</th>
@@ -97,10 +108,10 @@ const OperationalReport = ({
       </div>
 
       {/* Images */}
-      <div className="grid grid-cols-2 gap-4 mb-2 print:gap-2 print:mb-1 print:break-inside-avoid items-center">
+      <div className="grid grid-cols-2 gap-8 mb-2 print:gap-6 print:mb-1 print:break-inside-avoid">
         <div className="thermogram-card flex flex-col items-center">
           {thermalImage ? (
-            <img src={thermalImage} alt="Imagem Termográfica" className="report-image h-[150px] object-contain mx-auto" />
+            <img src={thermalImage} alt="Imagem Termográfica" className="report-image h-[150px] object-contain w-full" />
           ) : (
             <div className="image-placeholder h-[150px] w-full">
               <span className="text-xs text-muted-foreground">Sem imagem</span>
@@ -112,7 +123,7 @@ const OperationalReport = ({
         </div>
         <div className="thermogram-card flex flex-col items-center">
           {realImage ? (
-            <img src={realImage} alt="Imagem Real" className="report-image h-[150px] object-contain mx-auto" />
+            <img src={realImage} alt="Imagem Real" className="report-image h-[150px] object-contain w-full" />
           ) : (
             <div className="image-placeholder h-[150px] w-full">
               <span className="text-xs text-muted-foreground">Sem imagem</span>
@@ -134,9 +145,9 @@ const OperationalReport = ({
       <div className="report-section">
         <h3 className="report-subtitle">DESCRIÇÃO DO PROBLEMA:</h3>
         <p className="text-foreground mb-4">{problem}</p>
-        <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+        <div className={`classification-badge ${getClassificationBadgeClass()}`}>
           <span className="text-sm font-medium">Classificação:</span>
-          <span className="font-semibold text-primary">{classification}</span>
+          <span className="font-semibold">{classification}</span>
         </div>
       </div>
 

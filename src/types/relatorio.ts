@@ -34,9 +34,11 @@ export interface Relatorio {
   status: string;
   n_relatorio: string;
   id_user: number;
+  id_user_aprovador?: number;
   tipoVazamento: string | null;
   cliente?: Cliente;
   usuario?: Usuario;
+  aprovador?: Usuario;
 }
 
 export interface Termografia {
@@ -63,6 +65,7 @@ export interface RelatorioResponse {
   relatorio: Relatorio;
   cliente?: Cliente;
   usuario?: Usuario;
+  aprovador?: Usuario;
   termografias: Termografia[];
 }
 
