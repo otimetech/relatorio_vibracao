@@ -1,16 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { RelatorioResponse } from "@/types/relatorio";
+import { VibracaoRelatorioResponse } from "@/types/vibracao";
 
-const API_URL = "https://ayfkjjdgrbymmlkuzbig.supabase.co/functions/v1/get-relatorio-termo";
+const API_URL = "/api/get-vibracao";
 
-export const fetchRelatorio = async (idRelatorio: string): Promise<RelatorioResponse> => {
-  const response = await fetch(`${API_URL}?idRelatorio=${idRelatorio}`);
+export const fetchRelatorio = async (idRelatorio: string): Promise<VibracaoRelatorioResponse> => {
+  const response = await fetch(`${API_URL}?id_relatorio=${idRelatorio}`);
   
   if (!response.ok) {
     throw new Error(`Erro ao buscar relatório: ${response.status}`);
   }
-  
-  return response.json();
+
+  const data: VibracaoRelatorioResponse = await response.json();
+  if (!data.success) {
+    throw new Error("Erro ao buscar relatório: resposta inválida");
+  }
+
+  return data;
 };
 
 export const useRelatorio = (idRelatorio: string | null) => {

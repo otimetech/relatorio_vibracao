@@ -185,15 +185,23 @@
   }
 
   .equipment-table th {
-    @apply bg-primary text-primary-foreground text-left px-4 py-2 text-sm font-semibold;
+    @apply bg-primary text-primary-foreground text-left px-2 py-1 text-[10px] font-semibold;
   }
 
   .equipment-table td {
-    @apply px-4 py-2 text-sm border-b border-border;
+    @apply px-2 py-1 text-[10px] border-b border-border;
   }
 
   .equipment-table tr:hover td {
     @apply bg-muted/50;
+  }
+
+  .measure-layer {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* Operational Report Table - com cor amarela */
@@ -292,6 +300,74 @@
   .feedback-section {
     @apply border-t border-dashed border-border pt-4 mt-6;
   }
+
+  /* Vibration Report Table - com cor azul */
+  .vibration-report-table {
+    @apply w-full border-collapse;
+  }
+
+  .vibration-report-table th {
+    background-color: #186839;
+    color: #ffffff;
+    @apply text-left px-4 py-2 text-sm font-semibold;
+  }
+
+  .vibration-report-table td {
+    @apply px-4 py-2 text-sm border-b border-border;
+  }
+
+  .vibration-report-table tr:hover td {
+    @apply bg-muted/50;
+  }
+
+  /* Vibration Report Table - crítico */
+  .vibration-report-table-critical {
+    @apply w-full border-collapse;
+  }
+
+  .vibration-report-table-critical th {
+    background-color: #960000;
+    color: #ffffff;
+    @apply text-left px-4 py-2 text-sm font-semibold;
+  }
+
+  .vibration-report-table-critical td {
+    @apply px-4 py-2 text-sm border-b border-border;
+  }
+
+  .vibration-report-table-critical tr:hover td {
+    @apply bg-muted/50;
+  }
+
+  /* Vibration Card */
+  .vibration-card {
+    @apply bg-card border border-border rounded-lg overflow-hidden shadow-md;
+  }
+
+  /* Severity colors for vibration */
+  .severity-good {
+    @apply bg-green-600 text-white;
+  }
+
+  .severity-acceptable {
+    @apply bg-green-200 text-green-800;
+  }
+
+  .severity-alert {
+    @apply bg-yellow-300 text-yellow-900;
+  }
+
+  .severity-high {
+    @apply bg-orange-400 text-orange-900;
+  }
+
+  .severity-critical {
+    @apply bg-red-500 text-white;
+  }
+
+  .severity-very-critical {
+    @apply bg-red-800 text-white;
+  }
 }
 
 @layer utilities {
@@ -361,6 +437,7 @@
 
   /* Keep cards/tables together */
   .thermogram-card,
+  .vibration-card,
   .info-card,
   .data-table,
   table,
@@ -446,6 +523,38 @@
   .bg-border {
     background-color: hsl(150 10% 88%) !important;
   }
+
+  /* Vibration severity colors for print */
+  .bg-green-600 {
+    background-color: #16a34a !important;
+  }
+
+  .bg-green-200 {
+    background-color: #bbf7d0 !important;
+  }
+
+  .bg-yellow-300 {
+    background-color: #fde047 !important;
+  }
+
+  .bg-orange-400 {
+    background-color: #fb923c !important;
+  }
+
+  .bg-red-500 {
+    background-color: #ef4444 !important;
+  }
+
+  .bg-red-800 {
+    background-color: #991b1b !important;
+  }
+
+  /* Vibration table print styles */
+  .vibration-report-table th,
+  .vibration-report-table-critical th {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }
 
 /* A4 Preview Mode (screen) - mirror print box */
@@ -464,5 +573,12 @@
     overflow: hidden;
     box-sizing: border-box;
     padding: 8mm;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Ensure proper page separation in preview */
+  .report-page + .report-page {
+    margin-top: 40px;
   }
 }

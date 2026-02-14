@@ -6,6 +6,14 @@ import path from "path";
 export default defineConfig({
   server: {
     port: 8080,
+    proxy: {
+      "/api": {
+        target: "https://ayfkjjdgrbymmlkuzbig.supabase.co/functions/v1",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
   plugins: [react()],
   resolve: {

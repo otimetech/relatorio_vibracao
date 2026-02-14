@@ -1,13 +1,16 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import ReportHeader from "@/components/ReportHeader";
 import ReportFooter from "@/components/ReportFooter";
-import StatusBadge from "@/components/StatusBadge";
-import EquipmentTable from "@/components/EquipmentTable";
-import OperationalReport from "@/components/OperationalReport";
-import TemperatureTable from "@/components/TemperatureTable";
+import PaginatedEquipmentTable from "@/components/PaginatedEquipmentTable";
+import VibrationAlarmCriticalTable from "@/components/VibrationAlarmCriticalTable";
 import StatusChart from "@/components/StatusChart";
+import { VibrationPrinciplesPage1, VibrationPrinciplesPage1b, VibrationPrinciplesPage2 } from "@/components/VibrationPrinciples";
+import SeverityTable from "@/components/SeverityTable";
+import AccelerationReference from "@/components/AccelerationReference";
+import VibrationOperationalReport from "@/components/VibrationOperationalReport";
 import { useRelatorio } from "@/hooks/useRelatorio";
-import { mapApiStatusToStatusType, Termografia } from "@/types/relatorio";
+import { StatusType } from "@/types/relatorio";
+import { mapVibracaoStatusToStatusType, VibracaoItem } from "@/types/vibracao";
 
 const Index = () => {
   const { idRelatorio: paramId } = useParams<{
@@ -29,7 +32,7 @@ const Index = () => {
   if (!idRelatorio) {
     return <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold text-primary mb-4">Relatório de Termografia</h1>
+          <h1 className="text-2xl font-bold text-primary mb-4">Relatório de Vibração</h1>
           <p className="text-muted-foreground mb-6">
             Informe o ID do relatório na URL para visualizar os dados.
           </p>
@@ -64,41 +67,69 @@ const Index = () => {
       </div>;
   }
   const {
-    relatorio,
-    cliente,
-    usuario,
-    aprovador,
-    termografias
+    relatorio
   } = data;
 
   // Usar cliente do response ou do relatorio
-  const clienteData = cliente || relatorio.cliente;
+  const clienteData = relatorio.cliente;
   // Usar usuario do response ou do relatorio
-  const usuarioData = usuario || relatorio.usuario;
+  const usuarioData = relatorio.usuario;
   // Usar aprovador do response ou do relatorio
-  const aprovadorData = aprovador || relatorio.aprovador;
+  const aprovadorData = relatorio.aprovador;
 
-  // Filtrar termografias com problemas (alerta ou crítico)
-  const criticalEquipment = termografias.filter(t => t.status.toLowerCase() !== "normal").map((t, index) => ({
-    id: index + 1,
-    name: `${t.localizacao} - ${t.tag}`,
-    sector: t.setor,
-    status: mapApiStatusToStatusType(t.status),
-    observation: `VIDE R.O. ${String(index + 1).padStart(2, "0")}`
-  }));
+  const getVibracaoStatus = (item: VibracaoItem): StatusType => {
+    // Priorizar st3 se existir
+    if (item.st3) {
+      return mapVibracaoStatusToStatusType(item.st3);
+    }
+    if (item.status) {
+      return mapVibracaoStatusToStatusType(item.status);
+    }
+    const diagnostico = (item.diagnostico || "").toLowerCase();
+    if (diagnostico.includes("fora de operação") || diagnostico.includes("fora de operacao")) {
+      return "off";
+    }
+    if (item.diagnostico || item.recomendacao) {
+      return "alert";
+    }
+    return "normal";
+  };
+
+  // Filtrar vibracoes com problemas (apenas A1 e A2, ou seja alert e critical)
+  const criticalEquipment = relatorio.vibracoes
+    .filter((v) => {
+      const status = getVibracaoStatus(v);
+      return status === "alert" || status === "critical";
+    })
+    .map((v, index) => ({
+      id: index + 1,
+      area: v.area || v.equipamento?.area || "",
+      local: v.local,
+      conjunto: v.conjunto,
+      st3: v.st3 || "",
+      data_exe: v.data_exe || relatorio.dataExe,
+      diagnostico: v.diagnostico || "",
+      recomendacao: v.recomendacao || "",
+      status: getVibracaoStatus(v),
+      observation: `VIDE R.O. ${String(index + 1).padStart(2, "0")}`
+    }));
 
   // Todos os equipamentos
-  const allEquipment = termografias.map((t, index) => ({
+  const allEquipment = relatorio.vibracoes.map((v, index) => ({
     id: index + 1,
-    name: `${t.localizacao} - ${t.tag}`,
-    sector: t.setor,
-    status: mapApiStatusToStatusType(t.status),
-    statusLabel: t.status.toUpperCase()
+    area: v.area || v.equipamento?.area || "",
+    local: v.local || "",
+    conjunto: v.conjunto || "",
+    st3: v.st3 || "",
+    data: v.data_exe || relatorio.dataExe || "",
+    diagnostico: v.diagnostico || "",
+    recomendacao: v.recomendacao || ""
   }));
 
+
   // Calcular estatísticas de status
-  const statusCounts = termografias.reduce((acc, t) => {
-    const status = mapApiStatusToStatusType(t.status);
+  const statusCounts = relatorio.vibracoes.reduce((acc, v) => {
+    const status = getVibracaoStatus(v);
     if (status === "normal") acc.normal++;else if (status === "alert") acc.alert++;else if (status === "critical") acc.critical++;else if (status === "maintenance") acc.maintenance++;else if (status === "off") acc.off++;
     return acc;
   }, {
@@ -108,7 +139,7 @@ const Index = () => {
     maintenance: 0,
     off: 0
   });
-  const total = termografias.length || 1;
+  const total = relatorio.vibracoes.length || 1;
   const statusData = [{
     label: "NORMAIS",
     value: Math.round(statusCounts.normal / total * 100),
@@ -131,8 +162,13 @@ const Index = () => {
     color: "bg-destructive"
   }];
 
-  // Termografias com dados para relatório operacional (que têm status anormal)
-  const operationalReports = termografias.filter(t => t.status.toLowerCase() !== "normal");
+  const hasOperationalSt3 = (item: VibracaoItem) => {
+    const st3 = (item.st3 || "").trim().toUpperCase();
+    return st3 === "A1" || st3 === "A2";
+  };
+
+  // Vibracoes com dados para relatorio operacional (apenas A1/A2)
+  const operationalReports = relatorio.vibracoes.filter(hasOperationalSt3);
 
   // Formatar data
   const formatDate = (dateStr: string) => {
@@ -170,12 +206,12 @@ const Index = () => {
 
             <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
               <h2 className="text-2xl font-bold">RELATÓRIO DE MANUTENÇÃO PREDITIVA</h2>
-              <p className="text-lg mt-2">REF. INSPEÇÃO {relatorio.tipo?.toUpperCase() || "TERMOGRÁFICA"}</p>
+              <p className="text-lg mt-2">REF. INSPEÇÃO ANÁLISE DE VIBRAÇÃO</p>
               <p className="text-sm mt-2 opacity-80">Nº {relatorio.n_relatorio}</p>
             </div>
 
             <div className="mb-8 flex justify-center items-center">
-              <img src="/termografia-cover.jpg" alt="Imagem Termográfica" className="cover-image rounded-lg shadow-lg" style={{ width: "320px", height: "240px", objectFit: "cover" }} />
+              <img src="/vibracao-cover.jpg" alt="Imagem de Análise de Vibração" className="cover-image rounded-lg" style={{ width: "320px", height: "240px", objectFit: "cover" }} />
             </div>
 
             {clienteData?.logo && <div className="mb-8">
@@ -222,7 +258,7 @@ const Index = () => {
 
           <div className="mb-8">
             
-            <p className="text-foreground leading-relaxed">Referente à inspeção realizada nos equipamentos na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
+            <p className="text-foreground leading-relaxed">Referente à inspeção de análise de vibração nos equipamentos rotativos na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
               <br />
               Relatório Nº <strong>{relatorio.n_relatorio}</strong>.
             </p>
@@ -242,91 +278,35 @@ const Index = () => {
           <ReportFooter />
         </div>
 
-        {/* Technical Info Page */}
-        <div className="report-page print-break flex flex-col">
-          <div className="flex-1">
-          <ReportHeader />
-          
-          <h2 className="report-title">RELATÓRIO DE INSPEÇÃO TERMOGRÁFICA</h2>
+        {/* Vibration Principles Page 1 */}
+        <VibrationPrinciplesPage1 />
 
-          <div className="report-section">
-            <h3 className="report-subtitle">1 - PRINCÍPIOS DA TERMOGRAFIA:</h3>
-            <p className="text-sm text-foreground leading-relaxed">
-              A técnica de inspeção empregada é um tipo de ensaio não destrutivo que permite a determinação 
-              de temperaturas e o exame das distribuições de calor em componentes ou equipamentos de processos 
-              a partir da radiação infravermelha emitida pelos mesmos. As imagens térmicas resultantes, 
-              denominadas termogramas, são mostradas a cores neste relatório.
-            </p>
-          </div>
+        {/* Vibration Principles Page 1b */}
+        <VibrationPrinciplesPage1b />
 
-          <div className="report-section">
-            <h3 className="report-subtitle">2 - APLICAÇÕES</h3>
-            <p className="text-sm text-foreground leading-relaxed">
-              A Termografia se aplica aos programas de manutenção preventiva e preditiva nas mais diversas 
-              indústrias, tais como: Papel, Plásticos, Têxtil, Celulose, Siderúrgica, Petroquímica, Vidreira, 
-              Cimento, Concessionárias de Energia Elétrica, Mineração, etc.
-            </p>
-          </div>
+        {/* Vibration Principles Page 2 */}
+        <VibrationPrinciplesPage2 />
 
-          <div className="report-section">
-            <h3 className="report-subtitle">3 - CRITÉRIOS DE LOCALIZAÇÃO DE PONTOS AQUECIDOS</h3>
-            
-            <div className="space-y-4 text-sm">
-              <div>
-                <p className="font-medium text-primary">3.1</p>
-                <p className="text-foreground">
-                  No instante em que inspeciona um componente elétrico, o inspetor da Jundpred realiza uma 
-                  rigorosa seleção preliminar para determinar se este componente se encontra em situação 
-                  normal ou não.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-primary">3.2</p>
-                <p className="text-foreground">
-                  Esta pré-seleção é feita utilizando-se equipamentos Termovisores de última geração e 
-                  equipamentos adicionais tais como Anemômetro e Alicate Amperímetro de alta precisão.
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-primary">3.3</p>
-                <p className="text-foreground">
-                  Nesta fase, são anotadas a temperatura do componente, a temperatura ambiente, a temperatura 
-                  máxima admissível do componente, a velocidade do vento, a carga nominal e a carga do 
-                  componente no momento da medição.
-              </p>
-              </div>
-            </div>
-          </div>
-          </div>
-          <ReportFooter />
-        </div>
+        {/* Severity Table Page */}
+        <SeverityTable />
 
-        {/* Temperature Table Page */}
-        <div className="report-page print-break flex flex-col">
-          <div className="flex-1">
-            <ReportHeader />
-            <TemperatureTable />
-          </div>
-          <ReportFooter />
-        </div>
+        {/* Acceleration Reference Page */}
+        <AccelerationReference />
 
         {/* Critical Equipment List */}
         {criticalEquipment.length > 0 && <div className="report-page print-break flex flex-col">
             <div className="flex-1">
               <ReportHeader />
-              <EquipmentTable title="RESUMO DOS EQUIPAMENTOS EM ALARME / CRÍTICOS" equipment={criticalEquipment} showObservation={true} />
+              <VibrationAlarmCriticalTable title="RESUMO DOS EQUIPAMENTOS EM ALARME / CRÍTICOS" equipment={criticalEquipment} />
             </div>
             <ReportFooter />
           </div>}
 
         {/* Full Equipment List */}
-        <div className="report-page print-break flex flex-col">
-          <div className="flex-1">
-            <ReportHeader />
-            <EquipmentTable title="LISTAGEM GERAL DOS EQUIPAMENTOS" equipment={allEquipment} />
-          </div>
-          <ReportFooter />
-        </div>
+        <PaginatedEquipmentTable
+          title="LISTAGEM GERAL DOS EQUIPAMENTOS"
+          equipment={allEquipment}
+        />
 
         {/* Status Overview */}
         <div className="report-page print-break flex flex-col">
@@ -344,19 +324,37 @@ const Index = () => {
               <div className="flex-1 flex flex-col items-center justify-center">
                 <h2 className="report-title text-center text-3xl">RELATÓRIOS OPERACIONAIS</h2>
                 <p className="text-center text-muted-foreground">
-                  Detalhamento das ocorrências encontradas durante a inspeção termográfica
+                  Detalhamento das ocorrências encontradas durante a inspeção de análise de vibração
                 </p>
               </div>
             </div>
 
-            {/* Operational Reports */}
-            {operationalReports.map((termo, index) => <OperationalReport key={termo.id} id={String(index + 1).padStart(2, "0")} area={termo.setor} equipment={`${termo.localizacao} - ${termo.tag}`} components={termo.componente || "N/A"} date={formatDate(relatorio.dataExe)} status={mapApiStatusToStatusType(termo.status)} emissivity="0.95" maxTemp={termo.temp_aquecimento ? `${termo.temp_aquecimento} °C` : "N/A"} maxAdmissibleTemp={termo.temp_admissivel ? `${termo.temp_admissivel}°C` : "N/A"} distance="≈1 m" thermalImage={termo.foto_painel || ""} realImage={termo.foto_camera || ""} readings={termo.temp_aquecimento ? [{
-          label: "Temp. Medida",
-          value: `${termo.temp_aquecimento} °C`
-        }, {
-          label: "Temp. Admissível",
-          value: `${termo.temp_admissivel} °C`
-        }] : []} problem={termo.descricao_problema || termo.observacao || "Verificar equipamento"} classification={termo.status.toLowerCase() === "crítico" ? "INTERVENÇÃO IMEDIATA" : "INTERVENÇÃO PROGRAMADA"} recommendations={termo.recomendacao ? [termo.recomendacao] : ["Realizar manutenção preventiva"]} />)}
+            {/* Vibration Operational Reports */}
+            {operationalReports.map((vibracao, index) => (
+              <VibrationOperationalReport
+                key={`vib-${vibracao.id}`}
+                id={String(index + 1).padStart(2, "0")}
+                area={vibracao.equipamento?.area || vibracao.local}
+                equipment={`${vibracao.local} - ${vibracao.conjunto}`}
+                components={vibracao.equipamento?.conjunto || vibracao.conjunto}
+                date={formatDate(relatorio.dataExe)}
+                status={getVibracaoStatus(vibracao)}
+                fabricante={vibracao.equipamento?.fabricante || "N/A"}
+                modelo={vibracao.equipamento?.modelo || "N/A"}
+                potencia={vibracao.equipamento?.potencia || "N/A"}
+                rotacao={vibracao.equipamento?.rotacao || "N/A"}
+                alimentacao={vibracao.equipamento?.alimentacao || "N/A"}
+                rolamento={vibracao.equipamento?.rolamento || "N/A"}
+                transmissao={vibracao.equipamento?.transmissao || "N/A"}
+                equipmentImage={vibracao.equipamento?.foto_equipamento || vibracao.foto || ""}
+                spectrumImage={vibracao.espectro || ""}
+                trendImage={vibracao.tendencia || ""}
+                readings={[]}
+                problem={vibracao.diagnostico || "Nao informado"}
+                classification={getVibracaoStatus(vibracao) === "critical" ? "INTERVENCAO IMEDIATA" : getVibracaoStatus(vibracao) === "off" ? "EQUIPAMENTO FORA DE OPERACAO" : "INTERVENCAO PROGRAMADA"}
+                recommendations={vibracao.recomendacao ? [vibracao.recomendacao] : ["Realizar manutencao preventiva"]}
+              />
+            ))}
           </>}
 
         {/* Final Considerations */}
