@@ -64,6 +64,12 @@ This project is built with:
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
 
+## Environment variables
+
+This app expects the API base URL to be provided at build time for production.
+
+- `VITE_API_URL`: Base URL for the vibration report API (example: `https://ayfkjjdgrbymmlkuzbig.supabase.co/functions/v1`)
+
 ## Can I connect a custom domain to my Lovable project?
 
 Yes, you can!
