@@ -334,9 +334,9 @@ const Index = () => {
               <VibrationOperationalReport
                 key={`vib-${vibracao.id}`}
                 id={String(index + 1).padStart(2, "0")}
-                area={vibracao.equipamento?.area || vibracao.local}
-                equipment={`${vibracao.local} - ${vibracao.conjunto}`}
-                components={vibracao.equipamento?.conjunto || vibracao.conjunto}
+                area={vibracao.area}
+                equipment={vibracao.local}
+                components={vibracao.conjunto}
                 date={formatDate(relatorio.dataExe)}
                 status={getVibracaoStatus(vibracao)}
                 fabricante={vibracao.equipamento?.fabricante || "N/A"}
@@ -366,10 +366,9 @@ const Index = () => {
           
           <div className="bg-secondary/30 rounded-lg p-6 mb-8">
             <p className="text-foreground leading-relaxed mb-4">
-              Afirmamos que são boas as condições gerais dos painéis e equipamentos que foram objeto desta inspeção. 
-              Ressaltamos que é importante que as recomendações, por nós apresentadas neste relatório, sejam 
-              devidamente seguidas para que os problemas atuais que detectamos não se agravem e para que se 
-              evitem outros problemas.
+              As medições realizadas referem-se ao plano de monitoramento
+              dos equipamentos rotativos, método da manutenção preditiva, que avalia a condição atual dos
+              equipamentos por análise das vibrações..
             </p>
             <p className="text-primary font-semibold">
               Muito obrigado pela confiança.

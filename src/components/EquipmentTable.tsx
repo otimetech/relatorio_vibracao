@@ -43,8 +43,8 @@ const EquipmentTable = ({ title, equipment }: EquipmentTableProps) => {
   const getSt3Class = (st3: string) => {
     const status = st3.toUpperCase();
     if (status === "N") return "bg-success text-success-foreground";
-    if (status === "A1") return "bg-destructive text-destructive-foreground";
-    if (status === "A2") return "bg-warning text-foreground";
+    if (status === "A2") return "bg-destructive text-destructive-foreground";
+    if (status === "A1") return "bg-warning text-foreground";
     return "bg-muted text-foreground";
   };
 

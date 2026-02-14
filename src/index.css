@@ -289,6 +289,16 @@
     @apply bg-secondary/50 rounded-lg p-4 border border-border;
   }
 
+  .info-card .text-xs {
+    font-size: 0.6875rem;
+    line-height: 0.9rem;
+  }
+
+  .info-card .text-sm {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
   .contact-info {
     @apply text-sm text-muted-foreground;
   }

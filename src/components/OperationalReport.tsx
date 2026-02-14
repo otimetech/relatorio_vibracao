@@ -62,6 +62,17 @@ const OperationalReport = ({
         <h2 className="report-title text-lg">RELATÓRIO OPERACIONAL – {id}</h2>
         <StatusBadge status={status} />
       </div>
+      <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground mb-4">
+        <span>
+          <span className="text-foreground font-semibold">Área:</span> {area}
+        </span>
+        <span>
+          <span className="text-foreground font-semibold">Local:</span> {equipment}
+        </span>
+        <span>
+          <span className="text-foreground font-semibold">Conjunto:</span> {components}
+        </span>
+      </div>
 
       {/* Info Table */}
       <div className="overflow-x-auto mb-6">
