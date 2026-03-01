@@ -207,7 +207,7 @@ const Index = () => {
             <div className="bg-primary text-primary-foreground py-4 px-6 rounded-lg mb-8">
               <h2 className="text-2xl font-bold">RELATÓRIO DE MANUTENÇÃO PREDITIVA</h2>
               <p className="text-lg mt-2">REF. INSPEÇÃO ANÁLISE DE VIBRAÇÃO</p>
-              <p className="text-sm mt-2 opacity-80">Nº {relatorio.n_relatorio}</p>
+              <p className="text-sm mt-2 opacity-80">Nº {relatorio.id}</p>
             </div>
 
             <div className="mb-8 flex justify-center items-center">
@@ -260,7 +260,7 @@ const Index = () => {
             
             <p className="text-foreground leading-relaxed">Referente à inspeção de análise de vibração nos equipamentos rotativos na data de <strong>{formatDate(relatorio.dataExe)}</strong>.
               <br />
-              Relatório Nº <strong>{relatorio.n_relatorio}</strong>.
+              Relatório Nº <strong>{relatorio.id}</strong>.
             </p>
           </div>
 

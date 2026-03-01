@@ -222,7 +222,6 @@ const VibrationOperationalReport = ({
       <div className="feedback-section print:mt-2 print:pt-2 print:border-t print:border-border">
         <div className="mb-3 print:mb-2">
           <label className="text-sm font-medium print:text-[10px]">Observações/Feedback:</label>
-          <div className="mt-1 print:mt-1 h-8 print:h-8 border-b-2 border-dashed border-border"></div>
         </div>
         <div className="flex items-center gap-4 print:gap-2">
           <span className="text-sm font-medium print:text-[10px]">Manutenção realizada:</span>
